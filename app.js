@@ -3,8 +3,8 @@ import morgan from 'morgan'
 import express from 'express'
 import sanitizeMongo from 'express-mongo-sanitize'
 import authRouter from './routes/auth/index.js'
-import studentsRouter from './routes/students'
-import coursesRouter from './routes/courses'
+import studentsRouter from './routes/students.js'
+import coursesRouter from './routes/courses.js'
 import connectDatabase from './startup/connectDatabase.js'
 connectDatabase()
 
