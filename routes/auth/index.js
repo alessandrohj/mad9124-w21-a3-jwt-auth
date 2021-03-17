@@ -3,9 +3,7 @@ import createDebug from 'debug'
 import sanitizeBody from '../../middleware/sanitizeBody.js'
 import express from 'express'
 import authUser from '../../middleware/authUser.js'
-import bcrypt from 'bcrypt'
 
-const saltRounds = 14
 const debug = createDebug('assignment03:authRouter')
 const router = express.Router()
 
@@ -26,7 +24,6 @@ router.post('/users', sanitizeBody, async(req,res) => {
                 ]
             })
         }
-        newUser.password = await bcrypt.hash(newUser.password, saltRounds)
         await newUser.save()
         res.status(201).send({data: newUser})
       
@@ -67,9 +64,6 @@ router.post('/tokens', sanitizeBody, async (req, res) => {
     }
 
     res.status(201).send({data: {token: user.generateAuthToken() }})
-    // compare the payload.password with the hashed password
-    // if all is good, return a token
-    // if any condition failed, return an error message
   })
 
 
