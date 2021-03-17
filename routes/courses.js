@@ -1,19 +1,21 @@
 import courses from '../data/courses.js'
 import express from 'express'
+import authUser from '../middleware/authUser.js'
+import authAdmin from '../middleware/authAdmin.js'
 import validateCourseId from '../middleware/validateCourseId.js'
 const router = express.Router()
 
 router.use('/:courseId', validateCourseId)
 
-router.get('/', (req, res) => res.send({data: courses}))
+router.get('/', authUser, (req, res) => res.send({data: courses}))
 
 // GET
-router.get('/:courseId', (req, res) => {
+router.get('/:courseId', authUser, (req, res) => {
     res.send({data: courses[req.courseIndex]})
 })
 
 //POST
-router.post('/', (req, res) => {
+router.post('/', authUser, authAdmin, (req, res) => {
     const {code, title, description, url} = req.body
     const newCourse = {
         id: Date.now(),
@@ -27,7 +29,7 @@ router.post('/', (req, res) => {
 })
 
 // PUT
-router.put('/:courseId', (req, res) => {
+router.put('/:courseId', authUser, authAdmin, (req, res) => {
     const {code, title, description, url} = req.body
     const id = req.params.courseIndex
     const updatedCourse = {id, code, title, description, url}
@@ -36,7 +38,7 @@ router.put('/:courseId', (req, res) => {
 })
 
 // Patch
-router.patch('/:courseId', (req, res) => {
+router.patch('/:courseId', authUser, authAdmin, (req, res) => {
 const {id, ...Rest} = req.body
 const updatedCourse = Object.assign({}, courses[req.courseIndex], Rest)
 courses[req.courseIndex] = updatedCourse
@@ -44,7 +46,7 @@ res.send({data: updatedCourse})
 })
 
 // Delete
-router.delete('/:courseId', (req, res) => {
+router.delete('/:courseId', authUser, authAdmin, (req, res) => {
     const deletedCourse = courses.splice(req.courseIndex, 1)
     res.send({data: deletedCourse[0]})
 })
