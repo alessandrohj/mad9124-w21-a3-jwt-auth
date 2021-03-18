@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken'
 
-
 const jwtSecretKey = 'secretKey'
 
 const parseToken = function (headerValue) {

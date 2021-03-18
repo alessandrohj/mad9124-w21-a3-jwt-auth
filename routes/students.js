@@ -1,54 +1,97 @@
-import students from '../data/students.js'
+import Student from '../models/Student.js'
 import express from 'express'
 import authUser from '../middleware/authUser.js'
 import authAdmin from '../middleware/authAdmin.js'
-import validateStudentId from '../middleware/validateStudentId.js'
+import sanitizeBody from '../middleware/sanitizeBody.js'
+
 const router = express.Router()
 
-router.use('/:studentId', validateStudentId)
-
-router.get('/', authUser, (req, res) => res.send({data: students}))
-
-// GET
-router.get('/:studentId', authUser, (req, res) => {
- res.send({data: students[req.studentIndex]})  
+router.get('/', authUser, async (req, res) => {
+    let students = await Student.find() 
+    res.send({data: students})
 })
 
-// POST
-router.post('/', authUser, authAdmin, (req, res) => {
-    const {firstName, lastName, nickName, email} = req.body
-    const newStudent = {
-        id: Date.now(),
-        firstName,
-        lastName,
-        nickName,
-        email
+// GET
+router.get('/:studentId', authUser, async (req, res) => {
+    try{
+    let student = await Student.findById(req.params.studentId)
+    if(!student) throw new Error("Resource not found")
+    res.send({data: student})
+    } catch(err) {
+        sendResourceNotFound(req, res)
     }
-    students.push(newStudent)
+})
+
+//POST
+router.post('/', sanitizeBody, authUser, authAdmin, async (req, res) => {
+    const newStudent = new newStudent(req.sanitizedBody)
+    await newStudent.save()
     res.status(201).send({data: newStudent})
 })
 
+
 // PUT
-router.put('/:studentId', authUser, authAdmin, (req, res) => {
-    const {firstName, lastName, nickName, email} = req.body
-    const id = req.params.studentIndex
-    const updatedStudent = {id, firstName, lastName, nickName, email}
-    students[req.studentIndex] = updatedStudent
-    res.send({data: updatedStudent})
+router.put('/:studentId', authUser, authAdmin, async (req, res) => {
+    try {
+        const {_id, ...otherAttributes} = req.sanitizedBody
+        const student = await Student.findByIdAndUpdate(
+            req.params.studentId,
+            {_id: req.params.studentId, ...otherAttributes},
+            {
+              new: true,
+              overwrite: true,
+              runValidators: true
+            }
+          )
+          if (!student) throw new Error('Resource not found')
+          res.send({data: student})
+    } catch (err) {
+        sendResourceNotFound(req, res)
+    }
+
 })
 
-// Patch
-router.patch('/:studentId', authUser, authAdmin, (req, res) => {
-const {id, ...Rest} = req.body
-const updatedStudent = Object.assign({}, students[req.studentIndex], Rest)
-students[req.studentIndex] = updatedStudent
-res.send({data: updatedStudent})
+// PATCH
+router.patch('/:studentId', sanitizeBody, authUser, authAdmin, async (req, res) => {
+    try{
+    const {_id, ...otherAttributes} = req.sanitizedBody
+    const updatedStudent = await Student.findByIdAndUpdate(
+        req.params.studentId,
+        {_id: req.params.studentId, ...otherAttributes},
+        {
+            new: true,
+            runValidators: true
+        }
+    )
+    if(!updatedStudent) throw new Error('Resource not found')
+    res.send({data: updatedStudent})
+    } catch(err){
+        sendResourceNotFound(req, res)
+    }
 })
 
 // Delete
-router.delete('/:studentId', authUser, authAdmin, (req, res) => {
-    const deletedStudent = students.splice(req.studentIndex, 1)
-    res.send({data: deletedStudent[0]})
+router.delete('/:studentId', authUser, authAdmin, async (req, res) => {
+    try{
+        const student = await Student.findByIdAndRemove(req.params.studentId)
+        if (!student) throw new Error('Resource not found')
+        res.send({data: student})
+    } catch (err){
+        sendResourceNotFound(req, res)
+    }
+
 })
+
+function sendResourceNotFound (req, res){
+      res.status(404).send({
+        errors: [
+          {
+            status: '404',
+            title: 'Resource does not exist',
+            description: `We could not find a course with this id`
+          }
+        ]
+      })
+    }
 
 export default router

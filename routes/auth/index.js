@@ -1,8 +1,10 @@
 import User from '../../models/User.js'
+import UserLog from '../../models/UserLog.js'
 import createDebug from 'debug'
 import sanitizeBody from '../../middleware/sanitizeBody.js'
 import express from 'express'
 import authUser from '../../middleware/authUser.js'
+import userLogs from '../../middleware/userLogs.js'
 
 const debug = createDebug('assignment03:authRouter')
 const router = express.Router()

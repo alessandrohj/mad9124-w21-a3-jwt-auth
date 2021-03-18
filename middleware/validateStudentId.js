@@ -1,5 +1,3 @@
-import students from '../data/students.js'
-
 function validateStudentId (req, res, next){
     const id = parseInt(req.params.studentId)
     const index = students.findIndex(student => student.id === id)

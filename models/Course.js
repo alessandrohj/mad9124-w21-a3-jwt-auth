@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import {Student} from './index.js'
+import Student from '../models/Student.js'
 
 
 const schema = new mongoose.Schema({
@@ -29,4 +29,4 @@ const schema = new mongoose.Schema({
 
 const Model = mongoose.model('Course', schema)
 
-module.exports = Model
+export default Model
