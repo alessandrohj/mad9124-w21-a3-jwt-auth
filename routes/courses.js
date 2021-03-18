@@ -31,7 +31,7 @@ router.post('/', sanitizeBody, authUser, authAdmin, async (req, res) => {
 
 
 // PUT
-router.put('/:courseId', authUser, authAdmin, async (req, res) => {
+router.put('/:courseId', sanitizeBody, authUser, authAdmin, async (req, res) => {
     try {
         const {_id, ...otherAttributes} = req.sanitizedBody
         const course = await Course.findByIdAndUpdate(
@@ -57,7 +57,7 @@ router.patch('/:courseId', sanitizeBody, authUser, authAdmin, async (req, res) =
     const {_id, ...otherAttributes} = req.sanitizedBody
     const updatedCourse = await Course.findByIdAndUpdate(
         req.params.courseId,
-        {_id: req.params.id, ...otherAttributes},
+        {_id: req.params.courseId, ...otherAttributes},
         {
             new: true,
             runValidators: true
@@ -73,7 +73,7 @@ router.patch('/:courseId', sanitizeBody, authUser, authAdmin, async (req, res) =
 // Delete
 router.delete('/:courseId', authUser, authAdmin, async (req, res) => {
     try{
-        const course = await Course.findByIdAndRemove(req.params.id)
+        const course = await Course.findByIdAndRemove(req.params.courseId)
         if (!course) throw new Error('Resource not found')
         res.send({data: course})
     } catch (err){

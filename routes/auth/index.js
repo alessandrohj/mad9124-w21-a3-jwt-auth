@@ -58,11 +58,8 @@ router.post('/tokens', sanitizeBody, async (req, res) => {
 
     const user = await User.authenticate(email, password)
 
-    let time = new Date();
-    let timeString = time.getUTCFullYear() + '/'+ ('0' + (time.getUTCMonth()+1)).slice(-2) + '/' + ('0' + time.getUTCDate()).slice(-2) + ' ' + ('0' + (time.getUTCHours())).slice(-2) + ':' + ('0' + time.getUTCMinutes()).slice(-2) + ':' + ('0' + time.getUTCSeconds()).slice(-2);
-
     if(!user){
-        let loginAttempt = new UserLog({username: email, ipAddress: address.ip(), didSucceed: false, createdAt: timeString})
+        let loginAttempt = new UserLog({username: email, ipAddress: address.ip(), didSucceed: false, createdAt: new Date()})
         await loginAttempt.save()
 
         return res.status(401).send({ errors: [
@@ -72,7 +69,7 @@ router.post('/tokens', sanitizeBody, async (req, res) => {
             }
         ]})
     }
-    let loginAttempt = new UserLog({username: email, ipAddress: address.ip(), didSucceed: true, createdAt: timeString})
+    let loginAttempt = new UserLog({username: email, ipAddress: address.ip(), didSucceed: true, createdAt: new Date()})
     await loginAttempt.save()
     res.status(201).send({data: {token: user.generateAuthToken() }})
   })

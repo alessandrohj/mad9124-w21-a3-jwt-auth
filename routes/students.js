@@ -31,7 +31,7 @@ router.post('/', sanitizeBody, authUser, authAdmin, async (req, res) => {
 
 
 // PUT
-router.put('/:studentId', authUser, authAdmin, async (req, res) => {
+router.put('/:studentId', sanitizeBody, authUser, authAdmin, async (req, res) => {
     try {
         const {_id, ...otherAttributes} = req.sanitizedBody
         const student = await Student.findByIdAndUpdate(
