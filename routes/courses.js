@@ -36,7 +36,7 @@ router.put('/:courseId', authUser, authAdmin, async (req, res) => {
         const {_id, ...otherAttributes} = req.sanitizedBody
         const course = await Course.findByIdAndUpdate(
             req.params.courseId,
-            {_id: req.params.id, ...otherAttributes},
+            {_id: req.params.courseId, ...otherAttributes},
             {
               new: true,
               overwrite: true,

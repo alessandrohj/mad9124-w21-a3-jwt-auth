@@ -21,14 +21,14 @@ const schema = new mongoose.Schema({
     }
 })
 
-schema.statics.loginAttempt = function (fail, next) {
-    if(fail){
-        this.didSucceed = false;
-        return next()
-    } else {
-        this.didSucceed = true;
-    }
-}
+// schema.statics.loginAttempt = function (success, next) {
+//     if(success === false){
+//         this.didSucceed = false;
+//         return next()
+//     } else {
+//         this.didSucceed = true;
+//     }
+// }
 
 const Model = mongoose.model('authentication_attempts', schema)
 

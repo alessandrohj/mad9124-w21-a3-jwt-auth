@@ -4,7 +4,8 @@ import createDebug from 'debug'
 import sanitizeBody from '../../middleware/sanitizeBody.js'
 import express from 'express'
 import authUser from '../../middleware/authUser.js'
-import userLogs from '../../middleware/userLogs.js'
+import address from 'address'
+
 
 const debug = createDebug('assignment03:authRouter')
 const router = express.Router()
@@ -56,7 +57,14 @@ router.post('/tokens', sanitizeBody, async (req, res) => {
     const {email, password} = req.sanitizedBody
 
     const user = await User.authenticate(email, password)
+
+    let time = new Date();
+    let timeString = time.getUTCFullYear() + '/'+ ('0' + (time.getUTCMonth()+1)).slice(-2) + '/' + ('0' + time.getUTCDate()).slice(-2) + ' ' + ('0' + (time.getUTCHours())).slice(-2) + ':' + ('0' + time.getUTCMinutes()).slice(-2) + ':' + ('0' + time.getUTCSeconds()).slice(-2);
+
     if(!user){
+        let loginAttempt = new UserLog({username: email, ipAddress: address.ip(), didSucceed: false, createdAt: timeString})
+        await loginAttempt.save()
+
         return res.status(401).send({ errors: [
             {
                 status: '401',
@@ -64,7 +72,8 @@ router.post('/tokens', sanitizeBody, async (req, res) => {
             }
         ]})
     }
-
+    let loginAttempt = new UserLog({username: email, ipAddress: address.ip(), didSucceed: true, createdAt: timeString})
+    await loginAttempt.save()
     res.status(201).send({data: {token: user.generateAuthToken() }})
   })
 
